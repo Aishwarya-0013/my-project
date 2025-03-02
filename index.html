@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spreadsheet Clone</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .spreadsheet { border-collapse: collapse; width: 100%; }
+        .spreadsheet th, .spreadsheet td { border: 1px solid #ccc; padding: 5px; text-align: center; min-width: 80px; }
+        .formula-bar { margin: 10px 0; padding: 5px; border: 1px solid #ccc; }
+        .toolbar button { margin-right: 5px; }
+    </style>
+</head>
+<body>
+
+    <div class="toolbar">
+        <button onclick="applyFunction('SUM')">SUM</button>
+        <button onclick="applyFunction('AVERAGE')">AVERAGE</button>
+        <button onclick="applyFunction('MAX')">MAX</button>
+        <button onclick="applyFunction('MIN')">MIN</button>
+        <button onclick="applyFunction('COUNT')">COUNT</button>
+        <button onclick="applyTextFunction('UPPER')">UPPER</button>
+        <button onclick="applyTextFunction('LOWER')">LOWER</button>
+        <button onclick="applyTextFunction('TRIM')">TRIM</button>
+    </div>
+
+    <input type="text" id="formula-bar" class="formula-bar" placeholder="Enter formula (e.g., SUM(A1:A3))">
+
+    <table class="spreadsheet">
+        <thead>
+            <tr>
+                <th></th>
+                <th>A</th>
+                <th>B</th>
+                <th>C</th>
+                <th>D</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th>1</th>
+                <td contenteditable="true" id="A1"></td>
+                <td contenteditable="true" id="B1"></td>
+                <td contenteditable="true" id="C1"></td>
+                <td contenteditable="true" id="D1"></td>
+            </tr>
+            <tr>
+                <th>2</th>
+                <td contenteditable="true" id="A2"></td>
+                <td contenteditable="true" id="B2"></td>
+                <td contenteditable="true" id="C2"></td>
+                <td contenteditable="true" id="D2"></td>
+            </tr>
+            <tr>
+                <th>3</th>
+                <td contenteditable="true" id="A3"></td>
+                <td contenteditable="true" id="B3"></td>
+                <td contenteditable="true" id="C3"></td>
+                <td contenteditable="true" id="D3"></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script>
+        function getCellValues(range) {
+            let cells = range.split(':');
+            if (cells.length === 2) {
+                let start = document.getElementById(cells[0]);
+                let end = document.getElementById(cells[1]);
+                if (start && end) {
+                    let values = [];
+                    let rowStart = parseInt(cells[0][1]);
+                    let rowEnd = parseInt(cells[1][1]);
+                    let colStart = cells[0][0];
+                    let colEnd = cells[1][0];
+
+                    for (let i = rowStart; i <= rowEnd; i++) {
+                        let cell = document.getElementById(colStart + i);
+                        if (cell) values.push(parseFloat(cell.innerText) || 0);
+                    }
+                    return values;
+                }
+            }
+            return [];
+        }
+
+        function applyFunction(func) {
+            let input = document.getElementById('formula-bar').value;
+            let match = input.match(/(\w+\d+):(\w+\d+)/);
+            if (match) {
+                let values = getCellValues(match[0]);
+                let result = 0;
+                switch (func) {
+                    case 'SUM': result = values.reduce((a, b) => a + b, 0); break;
+                    case 'AVERAGE': result = values.length ? (values.reduce((a, b) => a + b, 0) / values.length) : 0; break;
+                    case 'MAX': result = Math.max(...values); break;
+                    case 'MIN': result = Math.min(...values); break;
+                    case 'COUNT': result = values.length; break;
+                }
+                alert(`${func} Result: ${result}`);
+            } else {
+                alert("Invalid Range! Use format A1:A3");
+            }
+        }
+
+        function applyTextFunction(func) {
+            let input = document.getElementById('formula-bar').value;
+            let cell = document.getElementById(input);
+            if (cell) {
+                switch (func) {
+                    case 'UPPER': cell.innerText = cell.innerText.toUpperCase(); break;
+                    case 'LOWER': cell.innerText = cell.innerText.toLowerCase(); break;
+                    case 'TRIM': cell.innerText = cell.innerText.trim(); break;
+                }
+            } else {
+                alert("Invalid cell reference!");
+            }
+        }
+    </script>
+
+</body>
+</html>
